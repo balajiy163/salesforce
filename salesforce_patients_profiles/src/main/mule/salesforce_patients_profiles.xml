@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f88fca8b-15f2-4cdc-a77d-de6bd992fbad" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="a956b26c-101b-42b6-8bee-52a4e85b50ce" >
+		<salesforce:basic-connection username="balajiy163@gmail.com" password="Balajiyadav@1212" securityToken="xNszjByY6staWgUX92xFxxhhD" />
+	</salesforce:sfdc-config>
+	<salesforce:sfdc-config name="Salesforce_Config1" doc:name="Salesforce Config" doc:id="ad5a7a1f-ae65-4f2d-b8a1-73bd39ee5d84" >
+		<salesforce:basic-connection username="balajiy163@gmail.com" password="Balajiyadav@1212" securityToken="xNszjByY6staWgUX92xFxxhhD" />
+	</salesforce:sfdc-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="fa9fcfdd-9250-4d4c-8a56-e5a2e5e49dad" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="salesforce_patients_profilesFlow" doc:id="332f6f2c-b760-4479-8b33-cdf9f98c13ae" >
+		<http:listener doc:name="Listener" doc:id="81d9fcd1-4f5f-4d09-bf27-1e246a2bb13a" config-ref="HTTP_Listener_config" path="patient-profiles" allowedMethods="POST"/>
+		<ee:transform doc:name="Transform Message" doc:id="bd70bce5-934a-499f-ba39-4f795dd891f7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map(profile,indexofprofile) -> {
+	Name: profile.patientname,
+	Patient_Phnoe__c: profile.phone,
+	Patient_email__c: profile.email,
+	Patient_status__c: profile.status
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="patient_profiles__c" doc:name="Create" doc:id="bd4d6b4f-ecef-44b3-8cc4-30a66346ee48" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="3b6582ae-5ef8-4b73-b75c-c7c80ad13264" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="5925a86c-5406-47e7-bda2-94b2ff93e4bf" message="print payload"/>
+	</flow>
+</mule>
